@@ -1,0 +1,8 @@
+train: ../data/images_train/
+val: ../data/images_train/
+
+# number of classes
+nc: 2
+
+# class names
+names: ['number-plate', 'number-plate']
