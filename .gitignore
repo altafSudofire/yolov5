@@ -92,7 +92,7 @@ wheels/
 /wandb/
 .installed.cfg
 *.egg
-
+conf.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

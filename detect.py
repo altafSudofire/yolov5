@@ -51,10 +51,20 @@ from utils.torch_utils import select_device, smart_inference_mode
 
 from glob import glob
 import boto3
-textractclient = boto3.client("textract", aws_access_key_id="AKIAX7P7MNX73OSRRGMM",
-                              aws_secret_access_key="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", region_name="ap-south-1")
+from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME
+
+textractclient = boto3.client("textract", aws_access_key_id=AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=REGION_NAME)
 import codecs
 from detect import read_num
+
+import paho.mqtt.client as mqtt 
+from random import randrange, uniform
+import time
+import json
+import pdb
+import datetime
+
 
 @smart_inference_mode()
 def run(
