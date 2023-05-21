@@ -49,6 +49,12 @@ from utils.general import (LOGGER, Profile, check_file, check_img_size, check_im
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
+from glob import glob
+import boto3
+textractclient = boto3.client("textract", aws_access_key_id="AKIAX7P7MNX73OSRRGMM",
+                              aws_secret_access_key="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", region_name="ap-south-1")
+import codecs
+from detect import read_num
 
 @smart_inference_mode()
 def run(
@@ -259,3 +265,9 @@ def main(opt):
 if __name__ == '__main__':
     opt = parse_opt()
     main(opt)
+
+    print("GET IMAGES FROM PATH")
+    img_lst = glob('detected_images/*')
+    img_lst.sort()
+    print(img_lst, type(img_lst))
+    read_num()
