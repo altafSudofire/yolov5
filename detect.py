@@ -276,6 +276,7 @@ def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     return run(**vars(opt))
 
+from send_number_to_server import *
 
 if __name__ == '__main__':
     opt = parse_opt()
@@ -287,3 +288,6 @@ if __name__ == '__main__':
     # img_lst.sort()
     print(img_lst, type(img_lst))
     num = read_num(img_lst, textractclient)
+    record = {"device": "stream",
+    "number": num}
+    send(MQTT_USER, MQTT_PASS, record)
