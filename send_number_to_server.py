@@ -28,14 +28,12 @@ def send(MQTT_USER, MQTT_PASS, record):
     client.username_pw_set(MQTT_USER, MQTT_PASS)
     client.connect(MQTT_HOST, 1883, 60)
     # record={'ePark_id':'30839845F00C'}
-    # record = {
-    #     'device_id': 'camera1',
-    #     'number': 'number'
-    # }
+    # {"device": "stream",
+    # "number": num}
     client.loop_start()
-    client.subscribe('AllowUser' + record['ePark_id'],1)
-    client.on_message = on_message
-    client.publish('PairEParkDevice' + record['ePark_id'],1)
+    # client.subscribe('AllowUser' + record['number'],1)
+    # client.on_message = on_message
+    client.publish('VehicleNumberDetection', json.dumps(record['number']),1)
     # while True:
     # randNumber = randrange(20)
     # pdb.set_trace()
