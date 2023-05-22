@@ -20,11 +20,7 @@ from conf import MQTT_USER, MQTT_PASS
 #     ls.append(counter)
 #     print(len(ls))
 
-# MQTT_HOST = "43.204.54.187"
-
-MQTT_USER = MQTT_USER
-MQTT_PASS = MQTT_PASS    
-
+MQTT_HOST = "43.204.54.187"
 
 client = mqtt.Client()
 

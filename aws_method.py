@@ -12,7 +12,7 @@ img_lst = glob('detected_images/*')
 img_lst.sort()
 print(img_lst, type(img_lst))
 
-def read_num():
+def read_num(img_lst, client=textractclient):
     # file =open("./image_4.jpeg", encoding="utf8")
     # with open("./video3.jpeg", 'rb') as f:
     txt_lst = []
@@ -36,7 +36,8 @@ def read_num():
                 "text": extractedText
             }
             print(responseJson, type(responseJson))
-            txt_lst.append(num++ + '---' +img)
+            # txt_lst.append(num++ + '---' +img)
             txt_lst.append(responseJson["text"])
 
     print(txt_lst)
+    return txt_lst

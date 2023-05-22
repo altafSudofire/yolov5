@@ -56,7 +56,7 @@ from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME
 textractclient = boto3.client("textract", aws_access_key_id=AWS_ACCESS_KEY_ID,
                               aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=REGION_NAME)
 import codecs
-from detect import read_num
+from aws_method import read_num
 
 import paho.mqtt.client as mqtt 
 from random import randrange, uniform
@@ -69,8 +69,8 @@ import datetime
 @smart_inference_mode()
 def run(
         weights=ROOT / 'best.pt',  # model path or triton URL
-        source=ROOT / 'data/images/*.jpg',  # file/dir/URL/glob/screen/0(webcam)
-        data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
+        source=ROOT / 'data/images/image_2_5_working.jpg',  # file/dir/URL/glob/screen/0(webcam)
+        data=ROOT / 'data/dataset.yaml',  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
@@ -230,6 +230,11 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
+    if save_dir:
+        print(save_dir)
+        # print(s)
+        return save_dir
+    return None
 
 
 def parse_opt():
@@ -269,15 +274,16 @@ def parse_opt():
 
 def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
-    run(**vars(opt))
+    return run(**vars(opt))
 
 
 if __name__ == '__main__':
     opt = parse_opt()
-    main(opt)
-
+    save_dir = main(opt)
+    print(save_dir, type(save_dir))
     print("GET IMAGES FROM PATH")
-    img_lst = glob('detected_images/*')
-    img_lst.sort()
+    img_lst = glob(str(save_dir/'crops/number-plate/*'))
+    print(img_lst)
+    # img_lst.sort()
     print(img_lst, type(img_lst))
-    read_num()
+    num = read_num(img_lst, textractclient)
