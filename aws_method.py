@@ -38,6 +38,8 @@ def read_num(img_lst, client=textractclient):
             print(responseJson, type(responseJson))
             # txt_lst.append(num++ + '---' +img)
             txt_lst.append(responseJson["text"])
-
-    print(txt_lst)
-    return txt_lst
+    if len(txt_lst) >1:
+        res = max(set(txt_list), key = lambda x: test_list.count(x))
+        return res
+    print(txt_lst[0])
+    return txt_lst[0]

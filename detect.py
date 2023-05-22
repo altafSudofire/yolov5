@@ -289,5 +289,5 @@ if __name__ == '__main__':
     print(img_lst, type(img_lst))
     num = read_num(img_lst, textractclient)
     record = {"device": "stream",
-    "number": num[0]}
+    "number": num}
     send(MQTT_USER, MQTT_PASS, record)
