@@ -34,6 +34,7 @@ def send(MQTT_USER, MQTT_PASS, record):
     # client.subscribe('AllowUser' + record['number'],1)
     # client.on_message = on_message
     client.publish('VehicleNumberDetection', json.dumps(record['number']),1)
+    print(f"{record['number']} is successfully published to client")
     # while True:
     # randNumber = randrange(20)
     # pdb.set_trace()

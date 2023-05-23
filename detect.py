@@ -276,8 +276,6 @@ def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     return run(**vars(opt))
 
-from send_number_to_server import *
-
 if __name__ == '__main__':
     opt = parse_opt()
     save_dir = main(opt)
@@ -287,23 +285,4 @@ if __name__ == '__main__':
     print(img_lst)
     # img_lst.sort()
     print(img_lst, type(img_lst))
-    txt_lst = read_num(img_lst, textractclient)
-    print(txt_lst)
-    flt_lst = []
-    for text in txt_lst:
-        if text is not None:
-            s = re.sub(r'[^a-zA-Z0-9]', '', text)
-            flt_lst.append(s)
-    # flt_lst = [x for x in flt_lst if x[0].isalnum()]
-    # flt_lst = [re.sub(r'.', '', x, count = 5) for x in flt_lst if x[:3] == 'IND']
-    # flt_lst = [x for x in flt_lst if x[:2] in rto_code_list]
-    # if len(cleaned_text) >= 6 and cleaned_text[:2] in rto_code_list:
-    #                 extracted_list.append(cleaned_text[-10:])
-    if len(flt_lst) >1:
-        res = max(set(flt_list), key = lambda x: flt_lst.count(x))
-    else:
-        res = flt_lst[0]
-    print(flt_lst[0])
-    record = {"device": "stream",
-    "number": num}
-    send(MQTT_USER, MQTT_PASS, record)
+    read_num(img_lst, textractclient)
