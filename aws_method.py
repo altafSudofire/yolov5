@@ -8,11 +8,11 @@ import codecs
 import re
 
 print("GET IMAGES FROM PATH")
-img_lst = glob('detected_images/*')
+img_lst = glob('runs/detect/exp43/crops/number-plate/*')
 img_lst.sort()
 print(img_lst, type(img_lst))
 
-def read_num(img_lst, client=textractclient):
+def read_num(img_lst=img_lst, client=textractclient):
     # file =open("./image_4.jpeg", encoding="utf8")
     # with open("./video3.jpeg", 'rb') as f:
     rto_code_list = ['AP',  'AR',  'AN',  'CG',  'DN',  'GA',  'HP',  'JK',  'KL',  'MP',  'ML',  'LD',  'NL',  'OD',  'SK',  'TN',
@@ -37,21 +37,30 @@ def read_num(img_lst, client=textractclient):
             responseJson = {
                 "text": extractedText
             }
+            # import ipdb;ipdb.set_trace()
             print(responseJson, type(responseJson))
             # txt_lst.append(num++ + '---' +img)
             txt_lst.append(responseJson["text"])
-    flt_lst = []
-    for text in txt_list:
-        if text is not None:
-            s = re.sub(r'[^a-zA-Z0-9]', '', text)
-            flt_lst.append(s)
-    flt_lst = [x for x in flt_lst if x[0].isalnum()]
-    flt_lst = [re.sub(r'.', '', x, count = 5) for x in flt_lst if x[:3] == 'IND']
-    # flt_lst = [x for x in flt_lst if x[:2] in rto_code_list]
-    if len(cleaned_text) >= 6 and cleaned_text[:2] in rto_code_list:
-                    extracted_list.append(cleaned_text[-10:])
-    if len(flt_lst) >1:
-        res = max(set(flt_list), key = lambda x: flt_lst.count(x))
-        return res
-    print(flt_lst[0])
-    return flt_lst[0]
+            if len(txt_lst) == 10:
+                if responseJson["text"] == txt_lst[-2]:
+                    print("txt_lst > 10 and last element same, max: ", max(set(txt_lst), key = lambda x: txt_lst.count(x)))
+                    max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+                    print(max_num)
+                    continue
+                else:
+                    print("txt_lst >10 and last element different, max: ",max(set(txt_lst), key = lambda x: txt_lst.count(x)))
+                    max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+                    print(max_num)
+                print("return max: ", max_num)
+                return max_num
+    if 1<len(txt_lst)<=10:
+        print("txt_lst between 1 to 10, max: ", max(set(txt_lst), key = lambda x: txt_lst.count(x)))
+        max_num = max(set(txt_lst), key = lambda x: flt_lst.count(x))
+    else:
+        print("txt_lst is single or 0 element, txt_lst: ", txt_lst)
+        max_num = txt_lst
+    print("all cases are false, txt_lst: ", txt_lst)
+    print(max_num)
+    return max_num
+
+read_num()

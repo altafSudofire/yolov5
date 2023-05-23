@@ -94,7 +94,7 @@ def run(
         hide_conf=False,  # hide confidences
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
-        vid_stride=1,  # video frame-rate stride
+        vid_stride=5,  # video frame-rate stride
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -287,7 +287,23 @@ if __name__ == '__main__':
     print(img_lst)
     # img_lst.sort()
     print(img_lst, type(img_lst))
-    num = read_num(img_lst, textractclient)
+    txt_lst = read_num(img_lst, textractclient)
+    print(txt_lst)
+    flt_lst = []
+    for text in txt_lst:
+        if text is not None:
+            s = re.sub(r'[^a-zA-Z0-9]', '', text)
+            flt_lst.append(s)
+    # flt_lst = [x for x in flt_lst if x[0].isalnum()]
+    # flt_lst = [re.sub(r'.', '', x, count = 5) for x in flt_lst if x[:3] == 'IND']
+    # flt_lst = [x for x in flt_lst if x[:2] in rto_code_list]
+    # if len(cleaned_text) >= 6 and cleaned_text[:2] in rto_code_list:
+    #                 extracted_list.append(cleaned_text[-10:])
+    if len(flt_lst) >1:
+        res = max(set(flt_list), key = lambda x: flt_lst.count(x))
+    else:
+        res = flt_lst[0]
+    print(flt_lst[0])
     record = {"device": "stream",
     "number": num}
     send(MQTT_USER, MQTT_PASS, record)
