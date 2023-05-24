@@ -8,6 +8,7 @@ import codecs
 import re
 import os
 import time
+from collections import Counter
 import glob
 
 from watchdog.observers import Observer
@@ -50,10 +51,11 @@ def watch_images_folder(path):
 
     return image_list
 
-watch_images_folder('runs/detect/exp43/crops/number-plate/')
-updated_image_list = watch_images_folder('runs/detect/exp43/crops/number-plate/')
+# watch_images_folder('runs/detect/exp54/crops/number-plate/')
+# updated_image_list = watch_images_folder('runs/detect/exp43/crops/number-plate')
 
-print("Updated image list:", updated_image_list)
+# print("Updated image list:", updated_image_list)
+img_lst = glob.glob('runs/detect/exp54/crops/number-plate/*')
 
 def read_num(img_lst=img_lst, client=textractclient):
     # file =open("./image_4.jpeg", encoding="utf8")
@@ -63,6 +65,7 @@ def read_num(img_lst=img_lst, client=textractclient):
     txt_lst = []
     num = 0
     max_num = ''
+    # watch_images_folder('runs/detect/exp43/crops/number-plate')
     for img in img_lst:
         print("image name: ", img)
         with open(img, 'rb') as f:
@@ -84,37 +87,70 @@ def read_num(img_lst=img_lst, client=textractclient):
             }
             # import ipdb;ipdb.set_trace()
             print(responseJson, type(responseJson))
-            os.remove(img)
+            # os.remove(img)
             # txt_lst.append(num++ + '---' +img)
             if responseJson["text"] != '':
                 if responseJson["text"] != max_num:
                     txt_lst.append(responseJson["text"])
-            if len(txt_lst) == 10:
-                if responseJson["text"] == txt_lst[-2]:
-                    print("txt_lst > 10 and last element same, max: ", max(set(txt_lst), key = lambda x: txt_lst.count(x)))
-                    max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
-                    print(max_num)
-                    txt_lst.clear()
-                else:
-                    print("txt_lst >10 and last element different, max: ",max(set(txt_lst), key = lambda x: txt_lst.count(x)))
-                    max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
-                    txt_lst.clear()
-                    print("text_list is cleared, max_num: ", max_num)
-                print("return max: ", max_num)
-                record = filter_num(max_num)
-                print(f"{record['number']} is successfully published to client")
-                # send(MQTT_USER, MQTT_PASS, record)
-    if 1<len(txt_lst)<=10:
-        print("txt_lst between 1 to 10, max: ", max(set(txt_lst), key = lambda x: txt_lst.count(x)))
-        max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
-    else:
-        print("txt_lst is single or 0 element, txt_lst: ", txt_lst)
-        max_num = txt_lst
-    print("all cases are false, txt_lst: ", txt_lst)
-    print(max_num)
+
+    print(txt_lst)
+    max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+    txt_lst.clear()
+    for img in img_lst:
+        os.remove(img)
     record = filter_num(max_num)
-    print(f"{record['number']} is successfully published to client")
+    print(f"{record['vehicle_number']} is successfully published to client")
     # send(MQTT_USER, MQTT_PASS, record)
+    # while True:
+    #     if len(txt_lst) > 10:
+    #         txt_list1 = txt_lst[:10]
+    #         del text_list[:10]
+    #         max_num = max(set(txt_lst1), key = lambda x: txt_lst.count(x))
+    #         record = filter_num(max_num)
+    #         print(f"{record['number']} is successfully published to client")
+    #         send(MQTT_USER, MQTT_PASS, record)
+    #     elif len(txt_lst)<10:
+    #         if len(txt_lst) == 1:
+    #             max_num = txt_lst[0]
+    #             record = filter_num(max_num)
+    #             print(f"{record['number']} is successfully published to client")
+    #             send(MQTT_USER, MQTT_PASS, record)
+    #         elif len(txt_lst) < 1:
+    #             pass
+    #         else:
+    #             txt_list1 = txt_lst[:]
+    #             del text_list[:]
+    #             max_num = max(set(txt_lst1), key = lambda x: txt_lst.count(x))
+    #             record = filter_num(max_num)
+    #             print(f"{record['number']} is successfully published to client")
+    #             send(MQTT_USER, MQTT_PASS, record)
+
+    # if len(txt_lst) == 10:
+    #     if responseJson["text"] == txt_lst[-2]:
+    #         print("txt_lst > 10 and last element same, max: ", max(set(txt_lst), key = lambda x: txt_lst.count(x)))
+    #         max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+    #         print(max_num)
+    #         txt_lst.clear()
+    #     else:
+    #         print("txt_lst >10 and last element different, max: ",max(set(txt_lst), key = lambda x: txt_lst.count(x)))
+    #         max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+    #         txt_lst.clear()
+    #         print("text_list is cleared, max_num: ", max_num)
+    #     print("return max: ", max_num)
+    #     record = filter_num(max_num)
+    #     print(f"{record['number']} is successfully published to client")
+    #     # send(MQTT_USER, MQTT_PASS, record)
+    # elif 1<len(txt_lst)<10:
+    #     print("txt_lst between 1 to 10, max: ", max(set(txt_lst), key = lambda x: txt_lst.count(x)))
+    #     max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+    # else:
+    #     print("txt_lst is single or 0 element, txt_lst: ", txt_lst)
+    #     max_num = txt_lst
+    # print("all cases are false, txt_lst: ", txt_lst)
+    # print(max_num)
+    # record = filter_num(max_num)
+    # print(f"{record['number']} is successfully published to client")
+    # # send(MQTT_USER, MQTT_PASS, record)
 
 def filter_num(txt):
     print("---text list", txt)
@@ -128,6 +164,7 @@ def filter_num(txt):
     # if len(cleaned_text) >= 6 and cleaned_text[:2] in rto_code_list:
     #                 extracted_list.append(cleaned_text[-10:])
     return {
-        "device": "stream",
-        "number": flt_txt
+        "imei": "349454DEBFD8",
+        "vehicle_number": flt_txt
     }
+# read_num()

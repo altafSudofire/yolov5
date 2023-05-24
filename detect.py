@@ -56,7 +56,6 @@ from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME
 textractclient = boto3.client("textract", aws_access_key_id=AWS_ACCESS_KEY_ID,
                               aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=REGION_NAME)
 import codecs
-from aws_method import read_num
 
 import paho.mqtt.client as mqtt 
 from random import randrange, uniform
@@ -275,6 +274,8 @@ def parse_opt():
 def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     return run(**vars(opt))
+
+from aws_method import read_num
 
 if __name__ == '__main__':
     opt = parse_opt()
