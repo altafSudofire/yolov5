@@ -18,38 +18,6 @@ print("GET IMAGES FROM PATH")
 # img_lst = glob('runs/detect/exp43/crops/number-plate/*')
 # img_lst.sort()
 
-def on_file_created(event, image_list):
-    if event.src_path.endswith('.jpg'):
-        new_image = event.src_path
-        image_list.append(new_image)
-        print("New image added:", new_image)
-
-def watch_images_folder(path):
-    image_list = glob.glob(path + '/*.jpg')
-
-    def handle_event(event):
-        nonlocal image_list
-        if event.is_directory:
-            return
-        elif event.event_type == 'created':
-            on_file_created(event, image_list)
-
-    event_handler = FileSystemEventHandler()
-    event_handler.on_any_event = handle_event
-
-    observer = Observer()
-    observer.schedule(event_handler, path, recursive=False)
-    observer.start()
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-
-    observer.join()
-
-    return image_list
 
 # watch_images_folder('runs/detect/exp54/crops/number-plate/')
 # updated_image_list = watch_images_folder('runs/detect/exp43/crops/number-plate')
@@ -168,3 +136,38 @@ def filter_num(txt):
         "vehicle_number": flt_txt
     }
 # read_num()
+
+def on_file_created(event, image_list):
+    if event.src_path.endswith('.jpg'):
+        new_image = event.src_path
+        image_list.append(new_image)
+        print("New image added:", new_image)
+
+def watch_images_folder(path):
+    image_list = glob.glob(path + '/*.jpg')
+
+    def handle_event(event):
+        nonlocal image_list
+        if event.is_directory:
+            return
+        elif event.event_type == 'created':
+            on_file_created(event, image_list)
+
+    event_handler = FileSystemEventHandler()
+    event_handler.on_any_event = handle_event
+
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=False)
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+
+    observer.join()
+
+    read_num(image_list)
+
+watch_images_folder('runs/detect/exp59/crops/number-plate/')

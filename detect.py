@@ -27,7 +27,7 @@ Usage - formats:
                                  yolov5s_edgetpu.tflite     # TensorFlow Edge TPU
                                  yolov5s_paddle_model       # PaddlePaddle
 """
-
+# import ipdb;ipdb.set_trace()
 import argparse
 import os
 import platform
@@ -107,7 +107,7 @@ def run(
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
-
+    print(bjbjbljjv)
     # Load model
     device = select_device(device)
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
@@ -188,6 +188,9 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
+                    crop1 = imc[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]):int(xyxy[2])]
+                    text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+                    print(text)
 
             # Stream results
             im0 = annotator.result()
@@ -278,6 +281,7 @@ def main(opt):
 from aws_method import read_num
 
 if __name__ == '__main__':
+    # import ipdb;ipdb.set_trace()
     opt = parse_opt()
     save_dir = main(opt)
     print(save_dir, type(save_dir))
