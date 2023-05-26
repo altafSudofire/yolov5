@@ -134,10 +134,7 @@ def filter_num(txt):
     # flt_lst = [x for x in flt_lst if x[:2] in rto_code_list]
     # if len(cleaned_text) >= 6 and cleaned_text[:2] in rto_code_list:
     #                 extracted_list.append(cleaned_text[-10:])
-    return {
-        "imei": "349454DEBFD8",
-        "vehicle_number": flt_txt
-    }
+    return flt_txt
 # read_num()
 
 def on_file_created(event, image_list):
@@ -200,3 +197,4 @@ def read_single_image_num(img, textract_client=textractclient):
     }
 
     print(responseJson, type(responseJson))
+    return responseJson["text"]

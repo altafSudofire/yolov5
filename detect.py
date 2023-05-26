@@ -52,7 +52,7 @@ from utils.general import (LOGGER, Profile, check_file, check_img_size, check_im
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
-from aws_method import read_num, read_single_image_num
+from aws_method import read_num, read_single_image_num, filter_num
 from glob import glob
 import boto3
 from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME
@@ -67,7 +67,7 @@ import time
 import json
 import pdb
 import datetime
-
+from send_number_to_server import *
 
 @smart_inference_mode()
 def run(
@@ -108,6 +108,7 @@ def run(
     if is_url and is_file:
         source = check_file(source)  # download
 
+    num_lst = []
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -119,7 +120,7 @@ def run(
     imgsz = check_img_size(imgsz, s=stride)  # check image size
 
     # Dataloader
-    bs = 1  # batch_size
+    bs = 20  # batch_size
     if webcam:
         view_img = check_imshow(warn=True)
         dataset = LoadStreams(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
@@ -194,8 +195,22 @@ def run(
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
                     crop1 = imc[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]):int(xyxy[2])]
                     # print(crop1, type(crop1))
-                    # text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-                    print(read_single_image_num(crop1))
+                    text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+                    print(text)
+                    # ext_num = read_single_image_num(crop1)
+                    # ext_num = filter_num(ext_num)
+                    # if len(num_lst) == 50:
+                    #     ext_num = max(set(num_lst), key = lambda x: num_lst.count(x))
+                    #     print(record)
+                    #     send(MQTT_USER, MQTT_PASS, record)
+                    #     print("----list: ", num_lst)
+                    #     num_lst.clear()
+                    # if len(ext_num):
+                    #     num_lst.append(ext_num)
+                    # record = {
+                    #     "imei": "349454D951C8",
+                    #     "vehicle_number": ext_num
+                    # }
 
             # Stream results
             im0 = annotator.result()
@@ -287,8 +302,11 @@ def main(opt):
 
 if __name__ == '__main__':
     # import ipdb;ipdb.set_trace()
+    st_time = time.time()
     opt = parse_opt()
     save_dir = main(opt)
+    ed_time = time.time()
+    print("time elapsed is: ", ed_time - st_time)
     # print(save_dir, type(save_dir))
     # print("GET IMAGES FROM PATH")
     # img_lst = glob(str(save_dir/'crops/number-plate/*'))

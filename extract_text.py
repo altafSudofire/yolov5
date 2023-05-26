@@ -82,3 +82,72 @@ def extract_text_from_image(image):
 
 watch_images_folder('runs/detect/exp43/crops/number-plate')
 read_num()
+
+# ***************************************************** #
+# import time
+
+# timer_started = False
+# timer_start_time = 0
+# timer_duration = 5
+# pause_duration = 3
+
+# for i, det in enumerate(pred):  # per image
+#     seen += 1
+#     if webcam:  # batch_size >= 1
+#         p, im0, frame = path[i], im0s[i].copy(), dataset.count
+#         s += f'{i}: '
+#     else:
+#         p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
+
+#     p = Path(p)  # to Path
+#     save_path = str(save_dir / p.name)  # im.jpg
+#     txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
+#     s += '%gx%g ' % im.shape[2:]  # print string
+#     gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+#     imc = im0.copy() if save_crop else im0  # for save_crop
+#     annotator = Annotator(im0, line_width=line_thickness, example=str(names))
+    
+#     if len(det):
+#         # Rescale boxes from img_size to im0 size
+#         det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
+
+#         # Print results
+#         for c in det[:, 5].unique():
+#             n = (det[:, 5] == c).sum()  # detections per class
+#             s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+
+#         # Write results
+#         for *xyxy, conf, cls in reversed(det):
+#             if save_txt:  # Write to file
+#                 xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
+#                 line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # label format
+#                 with open(f'{txt_path}.txt', 'a') as f:
+#                     f.write(('%g ' * len(line)).rstrip() % line + '\n')
+
+#             if save_img or save_crop or view_img:  # Add bbox to image
+#                 c = int(cls)  # integer class
+#                 label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
+#                 annotator.box_label(xyxy, label, color=colors(c, True))
+#             if save_crop:
+#                 save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
+#             crop1 = imc[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]):int(xyxy[2])]
+            
+#             if not timer_started:  # Start the timer when the first frame is detected
+#                 timer_start_time = time.time()
+#                 timer_started = True
+            
+#             if time.time() - timer_start_time >= timer_duration:  # Timer duration reached, read the number
+#                 # Perform OCR using pytesseract on crop1
+#                 text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+#                 print(text)
+
+#                 # Pause for the specified pause duration
+#                 time.sleep(pause_duration)
+                
+#                 # Reset the timer and start again
+#                 timer_start_time = time.time()
+            
+#             # print(crop1, type(crop1))
+#             text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+#             print(text)
+# ********************************************* #
