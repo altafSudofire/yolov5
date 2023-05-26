@@ -35,6 +35,9 @@ import sys
 from pathlib import Path
 import re
 import torch
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -49,6 +52,7 @@ from utils.general import (LOGGER, Profile, check_file, check_img_size, check_im
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
+from aws_method import read_num, read_single_image_num
 from glob import glob
 import boto3
 from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME
@@ -107,7 +111,7 @@ def run(
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
-    print(bjbjbljjv)
+    # print(bjbjbljjv)
     # Load model
     device = select_device(device)
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
@@ -189,8 +193,9 @@ def run(
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
                     crop1 = imc[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]):int(xyxy[2])]
-                    text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-                    print(text)
+                    # print(crop1, type(crop1))
+                    # text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+                    print(read_single_image_num(crop1))
 
             # Stream results
             im0 = annotator.result()
@@ -233,7 +238,7 @@ def run(
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
     if save_dir:
-        print(save_dir)
+        # print(save_dir)
         # print(s)
         return save_dir
     return None
@@ -270,7 +275,7 @@ def parse_opt():
     parser.add_argument('--vid-stride', type=int, default=1, help='video frame-rate stride')
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
-    print_args(vars(opt))
+    # print_args(vars(opt))
     return opt
 
 
@@ -278,16 +283,16 @@ def main(opt):
     check_requirements(exclude=('tensorboard', 'thop'))
     return run(**vars(opt))
 
-from aws_method import read_num
+# from aws_method import read_num
 
 if __name__ == '__main__':
     # import ipdb;ipdb.set_trace()
     opt = parse_opt()
     save_dir = main(opt)
-    print(save_dir, type(save_dir))
-    print("GET IMAGES FROM PATH")
-    img_lst = glob(str(save_dir/'crops/number-plate/*'))
-    print(img_lst)
-    # img_lst.sort()
-    print(img_lst, type(img_lst))
-    read_num(img_lst, textractclient)
+    # print(save_dir, type(save_dir))
+    # print("GET IMAGES FROM PATH")
+    # img_lst = glob(str(save_dir/'crops/number-plate/*'))
+    # print(img_lst)
+    # # img_lst.sort()
+    # print(img_lst, type(img_lst))
+    # read_num(img_lst, textractclient)

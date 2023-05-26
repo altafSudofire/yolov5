@@ -24,7 +24,7 @@ from utils.general import (CONFIG_DIR, FONT, LOGGER, check_font, check_requireme
                            is_ascii, xywh2xyxy, xyxy2xywh)
 from utils.metrics import fitness
 from utils.segment.general import scale_image
-
+from aws_method import read_num, read_single_image_num
 # Settings
 RANK = int(os.getenv('RANK', -1))
 matplotlib.rc('font', **{'size': 11})
@@ -552,6 +552,7 @@ def save_one_box(xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square=False,
     xyxy = xywh2xyxy(b).long()
     clip_boxes(xyxy, im.shape)
     crop = im[int(xyxy[0, 1]):int(xyxy[0, 3]), int(xyxy[0, 0]):int(xyxy[0, 2]), ::(1 if BGR else -1)]
+    read_single_image_num(crop)
     if save:
         file.parent.mkdir(parents=True, exist_ok=True)  # make directory
         f = str(increment_path(file).with_suffix('.jpg'))
