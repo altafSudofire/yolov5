@@ -108,7 +108,7 @@ def run(
     if is_url and is_file:
         source = check_file(source)  # download
 
-    num_lst = []
+    txt_lst = []
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -131,6 +131,11 @@ def run(
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
     vid_path, vid_writer = [None] * bs, [None] * bs
 
+    timer_started = False
+    timer_start_time = 0
+    timer_duration = 15.0
+    pause_duration = 55.0
+    txt_sent = False
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
@@ -153,11 +158,6 @@ def run(
 
         # Second-stage classifier (optional)
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
-
-        timer_started = False
-        timer_start_time = 0
-        timer_duration = 5
-        pause_duration = 3
 
         # Process predictions
         for i, det in enumerate(pred):  # per image
@@ -203,22 +203,36 @@ def run(
                     if not timer_started:  # Start the timer when the first frame is detected
                         timer_start_time = time.time()
                         timer_started = True
-                    
-                    if time.time() - timer_start_time >= timer_duration:  # Timer duration reached, read the number
+                    time_diff = time.time() - timer_start_time
+                    print(int(time_diff), type(timer_duration))
+                    print(int(time_diff) > int(timer_duration))
+                    # import pdb; pdb.set_trace()
+                    if int(time_diff) > int(timer_duration):  # Timer duration reached, read the number
+                        if not txt_sent:
+                            max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
+                            print("text sent to client")
+                            txt_sent = True
+                        if int(time_diff) < pause_duration:
+                            print("TO BE CONTINUED.....")
+                            continue
+                        txt_sent = False
                         # Perform OCR using pytesseract on crop1
-                        text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-                        print("TIMER DURATION REACHED", text)
+                        print('under if')
+                        # text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+                        print("TEXT SENT IS FALSE NOW")
 
                         # Pause for the specified pause duration
-                        time.sleep(pause_duration)
+                        # time.sleep(pause_duration)
                         
                         # Reset the timer and start again
                         timer_start_time = time.time()
                     
                     # print(crop1, type(crop1))
-                    text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-                    print("OUT OF IF", text)
-
+                    else:
+                        text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+                        print("OUT OF IF", text)
+                        if text != '':
+                            txt_lst.append(text)
             # Stream results
             im0 = annotator.result()
             if view_img:
