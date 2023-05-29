@@ -37,7 +37,7 @@ import re
 import torch
 import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -154,6 +154,11 @@ def run(
         # Second-stage classifier (optional)
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
 
+        timer_started = False
+        timer_start_time = 0
+        timer_duration = 5
+        pause_duration = 3
+
         # Process predictions
         for i, det in enumerate(pred):  # per image
             seen += 1
@@ -195,22 +200,24 @@ def run(
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
                     crop1 = imc[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]):int(xyxy[2])]
                     # print(crop1, type(crop1))
+                    if not timer_started:  # Start the timer when the first frame is detected
+                        timer_start_time = time.time()
+                        timer_started = True
+                    
+                    if time.time() - timer_start_time >= timer_duration:  # Timer duration reached, read the number
+                        # Perform OCR using pytesseract on crop1
+                        text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+                        print("TIMER DURATION REACHED", text)
+
+                        # Pause for the specified pause duration
+                        time.sleep(pause_duration)
+                        
+                        # Reset the timer and start again
+                        timer_start_time = time.time()
+                    
+                    # print(crop1, type(crop1))
                     text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-                    print(text)
-                    # ext_num = read_single_image_num(crop1)
-                    # ext_num = filter_num(ext_num)
-                    # if len(num_lst) == 50:
-                    #     ext_num = max(set(num_lst), key = lambda x: num_lst.count(x))
-                    #     print(record)
-                    #     send(MQTT_USER, MQTT_PASS, record)
-                    #     print("----list: ", num_lst)
-                    #     num_lst.clear()
-                    # if len(ext_num):
-                    #     num_lst.append(ext_num)
-                    # record = {
-                    #     "imei": "349454D951C8",
-                    #     "vehicle_number": ext_num
-                    # }
+                    print("OUT OF IF", text)
 
             # Stream results
             im0 = annotator.result()
