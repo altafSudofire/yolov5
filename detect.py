@@ -55,7 +55,7 @@ from utils.torch_utils import select_device, smart_inference_mode
 from aws_method import read_num, read_single_image_num, filter_num
 from glob import glob
 import boto3
-from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME
+from conf import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION_NAME, MQTT_USER, MQTT_PASS
 
 textractclient = boto3.client("textract", aws_access_key_id=AWS_ACCESS_KEY_ID,
                               aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=REGION_NAME)
@@ -120,7 +120,7 @@ def run(
     imgsz = check_img_size(imgsz, s=stride)  # check image size
 
     # Dataloader
-    bs = 20  # batch_size
+    bs = 100  # batch_size
     if webcam:
         view_img = check_imshow(warn=True)
         dataset = LoadStreams(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
@@ -133,8 +133,8 @@ def run(
 
     timer_started = False
     timer_start_time = 0
-    timer_duration = 15.0
-    pause_duration = 55.0
+    timer_duration = 60.0
+    pause_duration = 140.0
     txt_sent = False
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
@@ -204,33 +204,30 @@ def run(
                         timer_start_time = time.time()
                         timer_started = True
                     time_diff = time.time() - timer_start_time
-                    print(int(time_diff), type(timer_duration))
-                    print(int(time_diff) > int(timer_duration))
-                    # import pdb; pdb.set_trace()
+                    # print(int(time_diff) > int(timer_duration))
                     if int(time_diff) > int(timer_duration):  # Timer duration reached, read the number
                         if not txt_sent:
                             max_num = max(set(txt_lst), key = lambda x: txt_lst.count(x))
-                            print("text sent to client")
+                            record = {
+                                "imei": "349454D951C8",
+                                "vehicle_number": max_num
+                            }
+                            print("text sent to client", record)
+                            # send(MQTT_USER, MQTT_PASS, record)
                             txt_sent = True
                         if int(time_diff) < pause_duration:
-                            print("TO BE CONTINUED.....")
+                            print("Session is paused")
                             continue
                         txt_sent = False
-                        # Perform OCR using pytesseract on crop1
                         print('under if')
-                        # text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
                         print("TEXT SENT IS FALSE NOW")
-
-                        # Pause for the specified pause duration
-                        # time.sleep(pause_duration)
                         
                         # Reset the timer and start again
                         timer_start_time = time.time()
                     
-                    # print(crop1, type(crop1))
                     else:
-                        text = pytesseract.image_to_string(crop1, config='-l eng --psm 9 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-                        print("OUT OF IF", text)
+                        text = read_single_image_num(crop1)
+                        print("Reading text: ", text)
                         if text != '':
                             txt_lst.append(text)
             # Stream results
